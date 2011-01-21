@@ -1,0 +1,1 @@
+<a href="<?= base_url() ?>connections/facebook"><img src="<?= $assets ?>login-button.png"></a>
