@@ -8,7 +8,6 @@ class Connections extends MY_Controller
 		if (config_item('facebook_enabled') == 'FALSE') redirect(base_url(), 'refresh');
 
 		$this->load->library('facebook');
-		
 		$this->module_site = $this->social_igniter->get_site_view_row('module', 'facebook');			   		
 	}
 

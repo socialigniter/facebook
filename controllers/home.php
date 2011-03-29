@@ -5,16 +5,12 @@ class Home extends Dashboard_Controller
     {
         parent::__construct();
 
-		$this->load->config('facebook');
-
+		$this->load->library('facebook');		
 		$this->data['page_title'] = 'Facebook';
 	}
  
- 	function index()
- 	{ 
- 		    
-		$this->load->library('facebook');
-		
+ 	function timeline()
+ 	{		
 		/* This is how to call a client API methods
 		// Old Calls From Before I implemented oAuth 2
 		$this->facebook_connect->client->feed_registerTemplateBundle($one_line_story_templates, $short_story_templates, $full_story_template);
