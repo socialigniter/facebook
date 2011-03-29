@@ -78,9 +78,9 @@ class Facebook
 	public function __construct($config) 
 	{
 		$this->ci =& get_instance();		
-		$this->appId 	= $this->ci->config->item('facebook_app_id');
-		$this->secret	= $this->ci->config->item('facebook_secret');
-		$this->cookie	= $this->ci->config->item('facebook_cookie');
+		$this->appId 	= config_item('facebook_app_id');
+		$this->secret	= config_item('facebook_secret_key');
+		$this->cookie	= '';
 		$this->domain	= base_url().'connections/facebook';
 		
 		$this->setAppId($this->appId);

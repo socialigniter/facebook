@@ -5,25 +5,32 @@ class Connections extends MY_Controller
     {
         parent::__construct();
 
-		$this->load->config('facebook');
-		   		
-		$this->check_connection = $this->connections_model->check_connection_user($this->session->userdata('user_id'), 'facebook');
-	}	
-		
-	function index()
-	{
-		if ($this->data['settings']['facebook']['enabled'] != 'TRUE') redirect(base_url(), 'refresh');
+		if (config_item('facebook_enabled') == 'FALSE') redirect(base_url(), 'refresh');
 
 		$this->load->library('facebook');
+		
+		$this->module_site = $this->social_igniter->get_site_view_row('module', 'facebook');			   		
+	}
 
+	function test()
+	{
+		echo 'key: '.config_item('facebook_app_id').'<br>';
+		echo 'key: '.config_item('facebook_api_key').'<br>';
+		echo 'secret: '.config_item('facebook_secret_key');
+	}
+			
+	function index()
+	{
 		$me 				= NULL;
 		$album				= NULL;
 		$profile_picture	= NULL;
+		
 		// IF USER IS LOGGED IN
 		if ($this->social_auth->logged_in())
 		{
 			// IS THIS FACECBOOK ACCOUNT ALREADY CONNECTED			
-			$check_connection = $this->connections_model->check_connection_user($this->session->userdata('user_id'), "facebook");
+			$check_connection = $this->social_auth->check_connection_user($this->session->userdata('user_id'), 'facebook', 'primary');
+			
 			// YES
 			if ($check_connection)
 			{							
@@ -31,22 +38,26 @@ class Connections extends MY_Controller
 				$this->session->set_flashdata('message', "You already have a Facebook account connected");
 				redirect('settings/connections', 'refresh');
 			}
-			// DOES NOT EXIST
 			else
 			{
 				// NO TOKENS IN URL query string GO TO FACEBOOK
 				if (!isset($_GET['session'])) redirect($this->facebook->getLoginUrl());
+				
 				// MAKE OBJECT OF session
 				$url_vars = json_decode($_GET['session']);			
+				
 				// HAS TOKENS PROCESS EM
 				if (isset($url_vars->access_token) && isset($url_vars->secret))
 				{
 					// SET FACEBOOK SESSION
 					$this->facebook->getSession();
+					
 					// USER DETAILS
 					$facebook_user = $this->facebook->api('/me');
+					
 					// ADD USER
-					$check_user_connection = $this->connections_model->check_connection_user_id($facebook_user['id'], "facebook");
+					$check_user_connection = $this->social_auth->check_connection_user_id($facebook_user['id'], "facebook");
+					
 					// SUCCESS ADDED
 					if($check_user_connection)
 					{
@@ -54,12 +65,25 @@ class Connections extends MY_Controller
 					 	redirect('settings/connections', 'refresh');
 					}
 					else
-					{
-						$connection = $this->connections_model->add_connection($this->session->userdata('user_id'), 'facebook', $url_vars->access_token, $url_vars->secret, $facebook_user['id'], $facebook_user['name'], $_GET['session']);
+					{					
+						// Add Connection
+				   		$connection_data = array(
+				   			'site_id'				=> $this->module_site->site_id,
+				   			'user_id'				=> $this->session->userdata('user_id'),
+				   			'module'				=> 'facebook',
+				   			'type'					=> 'primary',
+				   			'connection_user_id'	=> $facebook_user['id'],
+				   			'connection_username'	=> $facebook_user['name'],
+				   			'auth_one'				=> $url_vars->access_token,
+				   			'auth_two'				=> $url_vars->secret
+				   		);
+				   							
+						$connection = $this->social_auth->add_connection($connection_data);					
+						
 						// GO GET EXTENDED PERMISSIONS
-						if ($this->config->item('facebook_extended'))
+						if (config_item('facebook_extended'))
 						{
-							redirect('https://graph.facebook.com/oauth/authorize?client_id='.$this->config->item('facebook_app_id').'&redirect_uri='.base_url().'connections/facebook_extended/'.$connection->connection_id.'&scope='.$this->config->item('facebook_extended_options'));
+							redirect('https://graph.facebook.com/oauth/authorize?client_id='.config_item('facebook_app_id').'&redirect_uri='.base_url().'connections/facebook_extended/'.$connection->connection_id.'&scope='.config_item('facebook_extended_options'));
 						}
 						$this->session->set_flashdata('message', "Facebook account connected");
 					 	redirect('settings/connections', 'refresh');	
@@ -72,17 +96,22 @@ class Connections extends MY_Controller
 		{
 			// NO TOKENS IN URL query string GO TO FACEBOOK
 			if (!isset($_GET['session'])) redirect($this->facebook->getLoginUrl());
+			
 			// MAKE OBJECT OF session
 			$url_vars = json_decode($_GET['session']);
+			
 			// HAS TOKENS PROCESS
 			if (isset($url_vars->access_token) && isset($url_vars->secret))
 			{
 				// SET FACEBOOK SESSION
 				$this->facebook->getSession();
+				
 				// USER DETAILS
 				$facebook_user = $this->facebook->api('/me');			
+				
 				// IS FACEBOOK ACCOUNT ALREADY CONNECTED	
-				$check_user_connection = $this->connections_model->check_connection_user_id($facebook_user['id'], "facebook");
+				$check_user_connection = $this->social_auth->check_connection_user_id($facebook_user['id'], "facebook");
+				
 				// CHECK CONNECTION THEN ATTEMPT LOGIN
 				if ($check_user_connection)
 				{					
@@ -92,7 +121,6 @@ class Connections extends MY_Controller
 			        	$this->session->set_flashdata('message', "Login with Facebook Success");
 			        	redirect(base_url().'home', 'refresh');
 			        }
-			     	// ERROR LOGGING IN   
 			        else 
 			        { 
 			        	$this->session->set_flashdata('message', "Login with Facebook Did Not Work");
@@ -103,43 +131,60 @@ class Connections extends MY_Controller
 				else
 				{
 					// GET EXTENDED PERMISSIONS adds connection with empty user_id so hopefully we get email address upon return
-					if ($this->config->item('facebook_extended'))
+					if (config_item('facebook_extended'))
 					{
-						$connection = $this->connections_model->add_connection(0, 'facebook', $url_vars->access_token, $url_vars->secret, $facebook_user['id'], $facebook_user['name'], $_GET['session']);
-						redirect('https://graph.facebook.com/oauth/authorize?client_id='.$this->config->item('facebook_app_id').'&redirect_uri='.base_url().'connections/facebook_extended/'.$connection->connection_id.'&scope='.$this->config->item('facebook_extended_options'));
+						$connection = $this->social_auth->add_connection(0, 'facebook', $url_vars->access_token, $url_vars->secret, $facebook_user['id'], $facebook_user['name'], $_GET['session']);
+						redirect('https://graph.facebook.com/oauth/authorize?client_id='.config_item('facebook_app_id').'&redirect_uri='.base_url().'connections/facebook_extended/'.$connection->connection_id.'&scope='.config_item('facebook_extended_options'));
 					}
+					
 					// ELSE CREATE USER ACCOUNT AND CONNECTION
 					$username	= url_username($facebook_user['name'], 'none', true);				
+					
 					// CONVERTS FACEBOOK TIMEZONE TO STANDARD					
 					foreach(timezones() as $key => $zone)
 					{
 						if ($facebook_user['timezone'] === $zone) $time_zone = $key;						
 					}	
-		        	$utc_offset	= $facebook_user['timezone'] * 60 * 60;
-		        						
-		        	$additional_data = array(
-	    				'name' 		 	=> $facebook_user['name'],
-						'location'	 	=> $facebook_user['location']['name'],
-						'bio' 		 	=> '',
-						'url'	 	 	=> $facebook_user['link'],
-						'image'		 	=> '',
-						'home_base'		=> 'facebook',
-						'language'		=> $this->config->item('languages_default'),
-						'time_zone'		=> $time_zone,
-						'geo_enabled'	=> 0,
-						'utc_offset' 	=> $utc_offset
-    				);
+		        	$utc_offset	= $facebook_user['timezone'] * 60 * 60;		        	
 
-		        	// Register the user
-		        	$created_user_id = $this->social_auth->social_register($username, '', $additional_data);
+					// Create User
+			    	$additional_data = array(
+	    				'name' 		 	=> $facebook_user['name'],
+						'image'		 	=> '',
+						'language'		=> config_item('languages_default'),
+						'time_zone'		=> $time_zone,
+						'geo_enabled'	=> 0
+			    	);
+			    			       			      				
+			    	// Register User
+			  		$created_user_id = $this->social_auth->social_register($username, $email, $additional_data);
 		        	
 		        	if($created_user_id)
 		        	{
+						// Add Meta
+						$user_meta_data = array(
+							'location'	=> $facebook_user['location']['name'],
+							'url'		=> $facebook_user['link'],
+						);
+						
+						$this->social_auth->update_user_meta(config_item('site_id'), $create_user_id, 'users', $user_meta_data);					
+					
 						// Add Connection
-						$add_connection = $this->connections_model->add_connection($created_user_id, 'facebook', $url_vars->access_token, $url_vars->secret, $facebook_user['id'], $facebook_user['name'], $_GET['session']);
+				   		$connection_data = array(
+				   			'site_id'				=> $this->module_site->site_id,
+				   			'user_id'				=> $created_user_id,
+				   			'module'				=> 'facebook',
+				   			'type'					=> 'primary',
+				   			'connection_user_id'	=> $facebook_user['id'],
+				   			'connection_username'	=> $facebook_user['name'],
+				   			'auth_one'				=> $url_vars->access_token,
+				   			'auth_two'				=> $url_vars->secret
+				   		);
+				   							
+						$connection = $this->social_auth->add_connection($connection_data);					
 						
 						// Login In With
-			        	if ($this->social_auth->social_login('facebook', $created_user_id, $url_vars->access_token, $url_vars->secret, $add_connection->connection_password)) 
+						if ($this->social_auth->social_login($connection->user_id, 'facebook'))
 			        	{
 		        			$this->session->set_flashdata('message', "User created and logged in");
 				        	redirect(base_url().'home', 'refresh');
@@ -153,7 +198,6 @@ class Connections extends MY_Controller
 		       		}
 		       		else
 		       		{
-		        		// Redirect them back to the admin page
 		        		$this->session->set_flashdata('message', "Error creating user & logging in");
 		        		redirect("login", 'refresh');
 		       		}
@@ -166,31 +210,35 @@ class Connections extends MY_Controller
 		}			
 	}
 	
+	function add()
+	{		
+		if (!$this->social_auth->logged_in()) redirect('connections/facebook');		
+	}	
+	
 	function extended()
 	{
-		if (!$this->config->item('facebook') && (!$this->config->item('facebook_extended'))) redirect(base_url(), 'refresh');
-	
-		$this->load->library('facebook');		
-
-		$check_connection = $this->connections_model->check_connection_id($this->uri->segment(3));
-
-		if (!$check_connection) redirect(base_url(), 'refresh');
+		if (!config_item('facebook_extended')) redirect(base_url(), 'refresh');
+		if (!$check_connection = $this->social_auth->check_connection_user_id($this->uri->segment(3))) redirect(base_url(), 'refresh');
 		
 		$user_update = FALSE;
 
 		// SETS SESSION VALUES THAT ALLOWS Facebook API calls
-		$this->facebook->getSessionDatabase($check_connection->token_whole);
+		$this->facebook->getSessionDatabase($check_connection->auth_one);
+		
 		// GET USER INFO
 		$facebook_user = $this->facebook->api('/me');
+		
 		// CONNECTION IS FROM EXISTING USER
 		if ($check_connection->user_id != 0)
 		{
-			$user 			= $this->social_auth->get_user($check_connection->user_id);
+			$user 			= $this->social_auth->get_user('user_id', $check_connection->user_id);
 			$user_update 	= TRUE;
 			$user_id		= $user->user_id;
-		}		
+		}
+	
 		// ELSE CREATE USER ACCOUNT AND UPDATE CONNECTION
-		$username	= url_username($facebook_user['name'], 'none', true);		
+		$username = url_username($facebook_user['name'], 'none', true);		
+		
 		// IMAGE IS BLANK GRAB FROM FBOOK
 		if (($check_connection->user_id == 0) || ($user->image == ''))
 		{
@@ -199,38 +247,45 @@ class Connections extends MY_Controller
 			$album				= array();
 			$album_id			= NULL;
 			$profile_picture	= array();
+			
 			// FIND THE aid  		
-			foreach ($get_albums as $album):				
-				if ($album['name'] == 'Profile Pictures'):
+			foreach ($get_albums as $album)
+			{				
+				if ($album['name'] == 'Profile Pictures')
+				{
 					$album_id = $album['aid'];				
 					break;
-				endif;
-			endforeach;				
+				}
+			}	
+						
 			// GET ALBUM Profile Pictures
 			if ($album_id != '')
 			{
 				$get_profile_album = $this->facebook->api(array('query' => 'SELECT src_big FROM photo WHERE aid='.$album['aid'], 'method' => 'fql.query',));
 										
-				foreach ($get_profile_album as $profile_picture):			
+				foreach ($get_profile_album as $profile_picture)
+				{			
 					$user_new_picture = $profile_picture['src_big'];
 					break;					
-				endforeach;
-						
+				}
+
 				if ($profile_picture['src_big'] != '')
 				{
-	        		$this->load->model('image_model');													
-
+	        		$this->load->model('image_model');
+	
+	        		// Snatch Facebook Image
 					$image_full		= $user_new_picture;
 					$image_name		= $username.'.'.pathinfo($image_full, PATHINFO_EXTENSION);
-					$image_save		= $this->config->item('profile_raw_path').$image_name;
-
-					$this->image_model->get_external_image($image_full, $image_save);
-
-					$image_size 	= getimagesize($image_save);
-					$image_width 	= $image_size[0];
-					$image_height	= $image_size[1];
-					$this->image_model->make_profile_images($image_name, $image_width, $image_height, $user_id); 						
-					unlink($image_save);
+	        		$image_save		= $image_name;
+					$this->image_model->get_external_image($image_full, config_item('uploads_folder').$image_save);
+	
+					// Process New Images
+					$image_size 	= getimagesize(config_item('uploads_folder').$image_save);
+					$file_data		= array('file_name'	=> $image_save, 'image_width' => $image_size[0], 'image_height' => $image_size[1]);
+					$image_sizes	= array('full', 'large', 'medium', 'small');
+					$create_path	= config_item('users_images_folder').$user_id.'/';
+	
+					$this->image_model->make_images($file_data, 'users', $image_sizes, $create_path, TRUE);					
 				}
 			}
 		}
@@ -238,18 +293,18 @@ class Connections extends MY_Controller
 		if ($user_update)
 		{
 	    	$update_data = array(
-	        				'name' 		 	=> $facebook_user['name'],
-	        				'email'			=> $facebook_user['email'],
-							'location'	 	=> $facebook_user['location']['name'],
-							'bio' 		 	=> '',
-							'url'	 	 	=> $facebook_user['link'],
-							'image'		 	=> $image_name,
-							'home_base'		=> 'facebook',
-							'language'		=> $this->config->item('languages_default'),
-							'time_zone'		=> $time_zone,
-							'geo_enabled'	=> 0,
-							'utc_offset' 	=> $utc_offset				        	
-	    					);
+				'name' 		 	=> $facebook_user['name'],
+				'email'			=> $facebook_user['email'],
+				'location'	 	=> $facebook_user['location']['name'],
+				'bio' 		 	=> '',
+				'url'	 	 	=> $facebook_user['link'],
+				'image'		 	=> $image_name,
+				'home_base'		=> 'facebook',
+				'language'		=> config_item('languages_default'),
+				'time_zone'		=> $time_zone,
+				'geo_enabled'	=> 0,
+				'utc_offset' 	=> $utc_offset				        	
+			);
 
 	    	$this->social_auth->update_user($this->session->userdata('user_id'), $update_data);
 		}
@@ -265,17 +320,17 @@ class Connections extends MY_Controller
 	    	$utc_offset	= $facebook_user['timezone'] * 60 * 60;
 	    						
 	    	$additional_data = array(
-	        				'name' 		 	=> $facebook_user['name'],
-							'location'	 	=> $facebook_user['location']['name'],
-							'bio' 		 	=> '',
-							'url'	 	 	=> $facebook_user['link'],
-							'image'		 	=> $image_name,
-							'home_base'		=> 'facebook',
-							'language'		=> $this->config->item('languages_default'),
-							'time_zone'		=> $time_zone,
-							'geo_enabled'	=> 0,
-							'utc_offset' 	=> $utc_offset
-	        				);
+				'name' 		 	=> $facebook_user['name'],
+				'location'	 	=> $facebook_user['location']['name'],
+				'bio' 		 	=> '',
+				'url'	 	 	=> $facebook_user['link'],
+				'image'		 	=> $image_name,
+				'home_base'		=> 'facebook',
+				'language'		=> config_item('languages_default'),
+				'time_zone'		=> $time_zone,
+				'geo_enabled'	=> 0,
+				'utc_offset' 	=> $utc_offset
+			);
 
 	    	$created_user_id = $this->social_auth->social_register($username, $additional_data);
 	    	
@@ -301,15 +356,6 @@ class Connections extends MY_Controller
     		$this->session->set_flashdata('message', "Error creating user & logging in");
     		redirect("login", 'refresh');
    		}		
-	}
-	
-	function remove()
-	{
-		if (!$this->social_auth->logged_in()) redirect(base_url(), 'refresh');
-	
-		$this->connections_model->remove_connection($this->session->userdata('user_id'), 'facebook');
-		
-		redirect('settings/connections', 'refresh');
 	}	
 
 }
