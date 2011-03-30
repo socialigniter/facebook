@@ -11,6 +11,7 @@
 
 	<p>Facebook requires <a href="http://www.facebook.com/developers/" target="_blank">registering your application</a></p>
 				
+	<p><input type="text" name="app_id" value="<?= $settings['facebook']['app_id'] ?>"> App ID</p>
 	<p><input type="text" name="api_key" value="<?= $settings['facebook']['api_key'] ?>"> API Key </p> 
 	<p><input type="text" name="secret_key" value="<?= $settings['facebook']['secret_key'] ?>"> Secret Key</p>
 

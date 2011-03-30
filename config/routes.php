@@ -10,4 +10,5 @@
 * Standard installed routes for Twitter Module. 
 */
 $route['facebook'] 						= 'facebook';
+$route['facebook/example'] 				= 'example';
 $route['facebook/home/timeline']		= 'home/timeline';

@@ -13,9 +13,13 @@ class Connections extends MY_Controller
 
 	function test()
 	{
-		echo 'key: '.config_item('facebook_app_id').'<br>';
-		echo 'key: '.config_item('facebook_api_key').'<br>';
-		echo 'secret: '.config_item('facebook_secret_key');
+		//echo 'key: '.config_item('facebook_app_id').'<br>';
+		//echo 'key: '.config_item('facebook_api_key').'<br>';
+		//echo 'secret: '.config_item('facebook_secret_key');
+
+		// Create our Application instance (replace this with your appId and secret).
+
+		$this->load->view('connections/test');			
 	}
 			
 	function index()
