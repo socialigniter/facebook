@@ -12,7 +12,7 @@ class Connections extends MY_Controller
 			'client_id' 	=> config_item('facebook_app_id'),
 			'client_secret'	=> config_item('facebook_secret_key'),
 			'callback_url'	=> base_url().trim_slashes($this->uri->uri_string()),
-			'access_token'	=> $this->session->userdata('access_token')
+			'access_token'	=> NULL
 		);
 			
 		$this->load->library('facebook_oauth', $facebook_config);

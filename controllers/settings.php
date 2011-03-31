@@ -8,7 +8,7 @@ class Settings extends Dashboard_Controller
 
 		if ($this->data['logged_user_level_id'] > 1) redirect('home');	
         
-		$this->load->library('facebook');
+		$this->load->library('facebook_oauth');
 
 		$this->data['page_title'] = 'Settings';
     }
