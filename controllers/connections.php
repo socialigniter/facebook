@@ -75,7 +75,7 @@ class Connections extends MY_Controller
 			   			'module'				=> 'facebook',
 			   			'type'					=> 'primary',
 			   			'connection_user_id'	=> $facebook_user->id,
-			   			'connection_username'	=> $facebook_user->name,
+			   			'connection_username'	=> $facebook_user->username,
 			   			'auth_one'				=> $access_token
 			   		);
 
@@ -120,7 +120,7 @@ class Connections extends MY_Controller
 				   			'module'				=> 'facebook',
 				   			'type'					=> 'primary',
 				   			'connection_user_id'	=> $facebook_user->id,
-				   			'connection_username'	=> $facebook_user->name,
+				   			'connection_username'	=> $facebook_user->username,
 				   			'auth_one'				=> $access_token
 				   		);
 				   							
@@ -189,7 +189,7 @@ class Connections extends MY_Controller
 			   			'module'				=> 'facebook',
 			   			'type'					=> 'primary',
 			   			'connection_user_id'	=> $facebook_user->id,
-			   			'connection_username'	=> $facebook_user->name,
+			   			'connection_username'	=> $facebook_user->username,
 			   			'auth_one'				=> $access_token
 			   		);
 			   							
