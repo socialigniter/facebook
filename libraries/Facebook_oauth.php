@@ -157,6 +157,7 @@ class Facebook_oauth
 		$url 		= self::GraphUrl."?".OAuthUtils::build_http_query($params);
 		$response 	= $this->http($url, self::$METHOD_GET);
 		
+		
 		return $this->decode_JSON ? json_decode($response) : $response;
 	}
   
@@ -196,6 +197,8 @@ class Facebook_oauth
    */
   private function http($url, $method="GET", $postfields=NULL)
   {
+ 	log_message('debug', 'the $url: '.$url);
+  
     $this->http_info = array();
     $handle = curl_init();
     /* Curl settings */

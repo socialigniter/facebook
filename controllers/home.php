@@ -7,8 +7,6 @@ class Home extends Dashboard_Controller
 
 		if (config_item('facebook_enabled') == 'FALSE') redirect(base_url(), 'refresh');
 		
-		$this->load->helper('facebook');
-
 		$this->check_connection = $this->social_auth->check_connection_user($this->session->userdata('user_id'), 'facebook', 'primary');
 
 		$facebook_config = array(
@@ -17,14 +15,14 @@ class Home extends Dashboard_Controller
 			'callback_url'	=> base_url().'facebook/oauth',
 			'access_token'	=> $this->check_connection->auth_one
 		);
-			
+					
 		$this->load->library('facebook_oauth', $facebook_config);
 			
 		$this->data['page_title'] = 'Facebook';
 	}
  
  	function timeline()
- 	{						
+ 	{					
 		$timeline 		= $this->facebook_oauth->get('/me/home');		
 		$timeline_view	= NULL;
 		
