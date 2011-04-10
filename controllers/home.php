@@ -23,8 +23,14 @@ class Home extends Dashboard_Controller
  
  	function timeline()
  	{					
-		$timeline 		= $this->facebook_oauth->get('/me/home');		
+ 		if ($this->uri->segment(3) == 'wall') $api_endpoint = '/me/feed';
+ 		else $api_endpoint = '/me/home';
+  	
+		$timeline 		= $this->facebook_oauth->get($api_endpoint);		
 		$timeline_view	= NULL;
+	
+		//echo '<pre>';
+		//print_r($timeline);
 	
 		// Build Feed				 			
 		if (!empty($timeline))

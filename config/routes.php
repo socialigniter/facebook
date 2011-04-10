@@ -11,4 +11,5 @@
 */
 $route['facebook'] 						= 'facebook';
 $route['facebook/example'] 				= 'example';
+$route['facebook/home/wall'] 			= 'home/timeline';
 $route['facebook/home/timeline']		= 'home/timeline';
