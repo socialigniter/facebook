@@ -62,6 +62,10 @@ class Connections extends MY_Controller
 				if (property_exists($facebook_user, 'email')) $email = $facebook_user->email;
 				else $email = $facebook_user->username.'@facebook.com';
 				
+				// Username
+				if (property_exists($facebook_user, 'username')) $username = $facebook_user->username;
+				else $username = $facebbook_user->id;
+				
 				// Check
 				if ($user_check = $this->social_auth->get_user('email', $email))
 				{
@@ -75,7 +79,7 @@ class Connections extends MY_Controller
 			   			'module'				=> 'facebook',
 			   			'type'					=> 'primary',
 			   			'connection_user_id'	=> $facebook_user->id,
-			   			'connection_username'	=> $facebook_user->username,
+			   			'connection_username'	=> $username,
 			   			'auth_one'				=> $access_token
 			   		);
 
@@ -146,7 +150,7 @@ class Connections extends MY_Controller
 				   			'module'				=> 'facebook',
 				   			'type'					=> 'primary',
 				   			'connection_user_id'	=> $facebook_user->id,
-				   			'connection_username'	=> $facebook_user->username,
+				   			'connection_username'	=> $username,
 				   			'auth_one'				=> $access_token
 				   		);
 				   							

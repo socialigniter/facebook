@@ -25,7 +25,7 @@ class Home extends Dashboard_Controller
  	{					
 		$timeline 		= $this->facebook_oauth->get('/me/home');		
 		$timeline_view	= NULL;
-		
+	
 		// Build Feed				 			
 		if (!empty($timeline))
 		{
@@ -39,7 +39,7 @@ class Home extends Dashboard_Controller
 				$this->data['item_user_id']			= $item->from->id;
 				$this->data['item_avatar']			= $this->social_igniter->profile_image(0, '', '');
 				$this->data['item_contributor']		= $item->from->name;
-				$this->data['item_profile']			= 'http://facebook.com/'.$item->from->name;
+				$this->data['item_profile']			= 'http://facebook.com/profile.php?id='.$item->from->id;
 				
 				// Activity
 				$content = '';
@@ -55,7 +55,7 @@ class Home extends Dashboard_Controller
 			 	$this->data['item_comment']			= base_url().'comment/item/'.$item->id;
 			 	$this->data['item_comment_avatar']	= $this->data['logged_image'];
 			 	
-			 	$this->data['item_can_modify']		= FALSE; //$this->social_tools->has_access_to_modify('activity', $item, $this->session->userdata('user_id'), $this->session->userdata('user_level_id'));
+			 	$this->data['item_can_modify']		= FALSE; //$this->social_auth->has_access_to_modify('activity', $item, $this->session->userdata('user_id'), $this->session->userdata('user_level_id'));
 				$this->data['item_edit']			= ''; //base_url().'home/'.$item->module.'/manage/'.$item->content_id;
 				$this->data['item_delete']			= ''; //base_url().'api/activity/destroy/id/'.$item->activity_id;
 
