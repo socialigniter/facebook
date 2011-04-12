@@ -111,15 +111,23 @@ class Connections extends MY_Controller
 		
 						unlink(config_item('uploads_folder').$image_save);
 					}	
-					*/				
-				
-					// Convert Time					
-					foreach(timezones() as $key => $zone)
-					{
-						if ($facebook_user->timezone === $zone) $time_zone = $key;						
-					}	
+					*/	
 					
-		        	$utc_offset	= $facebook_user->timezone * 60 * 60;		        	
+					if (property_exists($facebook_user, 'timezone'))
+					{					
+						// Convert Time					
+						foreach(timezones() as $key => $zone)
+						{
+							if ($facebook_user->timezone === $zone) $time_zone = $key;						
+						}	
+						
+			        	$utc_offset	= $facebook_user->timezone * 60 * 60;		        	
+					}
+					else
+					{
+						$time_zone	= '';
+						$utc_offset = '';
+					}
 		
 					// Create User
 			    	$additional_data = array(
@@ -127,7 +135,8 @@ class Connections extends MY_Controller
 						'image'		 	=> '',
 						'language'		=> config_item('languages_default'),
 						'time_zone'		=> $time_zone,
-						'geo_enabled'	=> 0
+						'geo_enabled'	=> 0,
+						'connection'	=> 'Facebook'
 			    	);
 			    			       			      				
 			    	// Register User
@@ -135,11 +144,18 @@ class Connections extends MY_Controller
 		        	
 		        	if ($user_id)
 		        	{
+		        		$user_meta_data = array();
+		        	
 						// Add Meta
-						$user_meta_data = array(
-							'location'	=> $facebook_user->location->name,
-							'url'		=> $facebook_user->link,
-						);
+						if (property_exists($facebook_user, 'location'))
+						{	
+							$user_meta_data['location']	= $facebook_user->location->name;
+						}
+
+						if (property_exists($facebook_user, 'link'))
+						{							
+							$user_meta_data['url'] = $facebook_user->link;
+						}
 						
 						$this->social_auth->update_user_meta(config_item('site_id'), $user_id, 'users', $user_meta_data);					
 						
