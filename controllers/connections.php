@@ -239,7 +239,9 @@ class Connections extends MY_Controller
 			   			'auth_one'				=> $access_token
 			   		);
 			   							
-					$connection = $this->social_auth->add_connection($connection_data);					
+					$connection = $this->social_auth->add_connection($connection_data);
+					
+					$this->social_auth->set_userdata_connections($this->session->userdata('user_id'));										
 					
 					$this->session->set_flashdata('message', "Facebook account connected");
 				 	
