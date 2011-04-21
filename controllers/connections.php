@@ -62,15 +62,15 @@ class Connections extends MY_Controller
 				if (property_exists($facebook_user, 'email')) $email = $facebook_user->email;
 				else $email = $facebook_user->username.'@facebook.com';
 				
-				// Username
-				if (property_exists($facebook_user, 'username')) $username = $facebook_user->username;
-				else $username = $facebbook_user->id;
-				
 				// Check
 				if ($user_check = $this->social_auth->get_user('email', $email))
 				{
 					// Set
 					$user_id = $user_check->user_id;
+					
+					// Username
+					if (property_exists($facebook_user, 'username')) $username = $facebook_user->username;
+					else $username = $facebbook_user->id;					
 				
 					// Add Connection
 			   		$connection_data = array(
@@ -111,8 +111,12 @@ class Connections extends MY_Controller
 		
 						unlink(config_item('uploads_folder').$image_save);
 					}	
-					*/	
+					*/
 					
+					// Username
+					if (property_exists($facebook_user, 'username')) $username = $facebook_user->username;
+					else $username = url_username($facebook_user->name, 'none', true);
+
 					if (property_exists($facebook_user, 'timezone'))
 					{					
 						// Convert Time					
@@ -140,7 +144,7 @@ class Connections extends MY_Controller
 			    	);
 			    			       			      				
 			    	// Register User
-			  		$user_id = $this->social_auth->social_register($facebook_user->username, $email, $additional_data);
+			  		$user_id = $this->social_auth->social_register($username, $email, $additional_data);
 		        	
 		        	if ($user_id)
 		        	{
