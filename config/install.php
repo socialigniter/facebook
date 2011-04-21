@@ -13,3 +13,13 @@
 * Description: 	Install values for Facebook App for Social Igniter 
 */
 /* Settings */
+$config['facebook_settings']['enabled']				= 'TRUE';
+$config['facebook_settings']['app_id'] 				= '';
+$config['facebook_settings']['api_key'] 			= '';
+$config['facebook_settings']['secret_key'] 			= '';
+$config['facebook_settings']['social_login'] 		= 'TRUE';
+$config['facebook_settings']['social_connection'] 	= 'FALSE';
+$config['facebook_settings']['social_post'] 		= 'TRUE';
+$config['facebook_settings']['auto_publish'] 		= 'FALSE';
+$config['facebook_settings']['archive'] 			= 'TRUE';
+$config['facebook_settings']['extended_options'] 	= 'offline_access, user_about_me, user_activities, user_events, user_interests, user_likes, user_location, user_website, email, read_stream, read_mailbox, user_checkins, publish_stream, publish_checkins';
