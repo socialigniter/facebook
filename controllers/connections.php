@@ -22,14 +22,14 @@ class Connections extends MY_Controller
 			
 	function index()
 	{
-		// User Is Logged In
+		// Is Logged In
 		if ($this->social_auth->logged_in()) redirect('connections/facebook/add');	
 	
 		$me 				= NULL;
 		$album				= NULL;
 		$profile_picture	= NULL;
 
-		// Not Set go to Facebook
+		// Go to Facebook
 		if (!isset($_REQUEST['code']))
 		{
 			redirect($this->facebook_oauth->getAuthorizeUrl(config_item('facebook_extended_options')));
@@ -39,7 +39,7 @@ class Connections extends MY_Controller
 			// Get the goods
 			$access_token		= $this->facebook_oauth->getAccessToken($_REQUEST['code']);
 			$facebook_user		= $this->facebook_oauth->get('/me');
-			$check_connection	= $this->social_auth->check_connection_user_id($facebook_user->id, "facebook");
+			$check_connection	= $this->social_auth->check_connection_user_id($facebook_user->id, 'facebook');
 
 			// Check Connection
 			if ($check_connection)
@@ -70,7 +70,7 @@ class Connections extends MY_Controller
 					
 					// Username
 					if (property_exists($facebook_user, 'username')) $username = $facebook_user->username;
-					else $username = $facebbook_user->id;					
+					else $username = $facebbook_user->id;	
 				
 					// Add Connection
 			   		$connection_data = array(
@@ -215,7 +215,7 @@ class Connections extends MY_Controller
 			// Not Set go to Facebook
 			if (!isset($_REQUEST['code']))
 			{
-				redirect($this->facebook_oauth->getAuthorizeUrl('offline_access, user_about_me, user_activities, user_events, user_interests, user_likes, user_location, user_website, email, read_stream, read_mailbox, user_checkins, publish_stream, publish_checkins'));
+				redirect($this->facebook_oauth->getAuthorizeUrl(config_item('facebook_extended_options')));
 			}	
 			else
 			{
@@ -231,77 +231,40 @@ class Connections extends MY_Controller
 				 	redirect('settings/connections', 'refresh');
 				}
 				else
-				{					
-					// Add Connection
-			   		$connection_data = array(
-			   			'site_id'				=> $this->module_site->site_id,
-			   			'user_id'				=> $this->session->userdata('user_id'),
-			   			'module'				=> 'facebook',
-			   			'type'					=> 'primary',
-			   			'connection_user_id'	=> $facebook_user->id,
-			   			'connection_username'	=> $facebook_user->username,
-			   			'auth_one'				=> $access_token
-			   		);
-			   							
-					$connection = $this->social_auth->add_connection($connection_data);
-					
-					$this->social_auth->set_userdata_connections($this->session->userdata('user_id'));										
-					
-					$this->session->set_flashdata('message', "Facebook account connected");
-				 	
-				 	redirect('settings/connections', 'refresh');	
+				{
+					if (isset($facebook_user->id)) 
+					{
+						// Username
+						if (property_exists($facebook_user, 'username')) $username = $facebook_user->username;
+						else $username = $facebbook_user->id;					
+									
+						// Add Connection
+				   		$connection_data = array(
+				   			'site_id'				=> $this->module_site->site_id,
+				   			'user_id'				=> $this->session->userdata('user_id'),
+				   			'module'				=> 'facebook',
+				   			'type'					=> 'primary',
+				   			'connection_user_id'	=> $facebook_user->id,
+				   			'connection_username'	=> $username,
+				   			'auth_one'				=> $access_token
+				   		);
+
+						$connection = $this->social_auth->add_connection($connection_data);
+
+						$this->social_auth->set_userdata_connections($this->session->userdata('user_id'));
+
+						$this->session->set_flashdata('message', "Facebook account connected");
+
+					 	redirect('settings/connections', 'refresh');
+					}
+					else
+					{
+						echo '<pre>';
+						print_r($facebook_user);
+					}
 				}
 			}
 		}	
-	}	
-		
-/*
-	// GET ALL PHOTO ALBUMS
-	$get_albums = $this->facebook->api(array('query' => 'SELECT name, aid FROM album WHERE owner='.$facebook_user['id'], 'method' => 'fql.query'));    
-	$album				= array();
-	$album_id			= NULL;
-	$profile_picture	= array();
-	
-	// FIND THE aid  		
-	foreach ($get_albums as $album)
-	{				
-		if ($album['name'] == 'Profile Pictures')
-		{
-			$album_id = $album['aid'];				
-			break;
-		}
-	}	
-				
-	// GET ALBUM Profile Pictures
-	if ($album_id != '')
-	{
-		$get_profile_album = $this->facebook->api(array('query' => 'SELECT src_big FROM photo WHERE aid='.$album['aid'], 'method' => 'fql.query',));
-								
-		foreach ($get_profile_album as $profile_picture)
-		{			
-			$user_new_picture = $profile_picture['src_big'];
-			break;					
-		}
-
-		if ($profile_picture['src_big'] != '')
-		{
-    		$this->load->model('image_model');
-
-    		// Snatch Facebook Image
-			$image_full		= $user_new_picture;
-			$image_name		= $username.'.'.pathinfo($image_full, PATHINFO_EXTENSION);
-    		$image_save		= $image_name;
-			$this->image_model->get_external_image($image_full, config_item('uploads_folder').$image_save);
-
-			// Process New Images
-			$image_size 	= getimagesize(config_item('uploads_folder').$image_save);
-			$file_data		= array('file_name'	=> $image_save, 'image_width' => $image_size[0], 'image_height' => $image_size[1]);
-			$image_sizes	= array('full', 'large', 'medium', 'small');
-			$create_path	= config_item('users_images_folder').$user_id.'/';
-
-			$this->image_model->make_images($file_data, 'users', $image_sizes, $create_path, TRUE);					
-		}
 	}
-*/
 
 }
