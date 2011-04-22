@@ -39,6 +39,10 @@ class Connections extends MY_Controller
 			// Get the goods
 			$access_token		= $this->facebook_oauth->getAccessToken($_REQUEST['code']);
 			$facebook_user		= $this->facebook_oauth->get('/me');
+	
+			// Error Redirect
+			if (!isset($facebook_user->id)) redirect('signup', 'refresh');
+			
 			$check_connection	= $this->social_auth->check_connection_user_id($facebook_user->id, 'facebook');
 
 			// Check Connection
@@ -222,6 +226,11 @@ class Connections extends MY_Controller
 				// Get the goods
 				$access_token		= $this->facebook_oauth->getAccessToken($_REQUEST['code']);					
 				$facebook_user		= $this->facebook_oauth->get('/me');
+
+				// Error Redirect
+				if (!isset($facebook_user->id)) redirect('settings/connections', 'refresh');
+				
+				// Check
 				$check_connection	= $this->social_auth->check_connection_user_id($facebook_user->id, "facebook");
 				
 				// Added
@@ -232,36 +241,29 @@ class Connections extends MY_Controller
 				}
 				else
 				{
-					if (isset($facebook_user->id)) 
-					{
-						// Username
-						if (property_exists($facebook_user, 'username')) $username = $facebook_user->username;
-						else $username = $facebbook_user->id;					
-									
-						// Add Connection
-				   		$connection_data = array(
-				   			'site_id'				=> $this->module_site->site_id,
-				   			'user_id'				=> $this->session->userdata('user_id'),
-				   			'module'				=> 'facebook',
-				   			'type'					=> 'primary',
-				   			'connection_user_id'	=> $facebook_user->id,
-				   			'connection_username'	=> $username,
-				   			'auth_one'				=> $access_token
-				   		);
 
-						$connection = $this->social_auth->add_connection($connection_data);
+					// Username
+					if (property_exists($facebook_user, 'username')) $username = $facebook_user->username;
+					else $username = $facebbook_user->id;					
+								
+					// Add Connection
+			   		$connection_data = array(
+			   			'site_id'				=> $this->module_site->site_id,
+			   			'user_id'				=> $this->session->userdata('user_id'),
+			   			'module'				=> 'facebook',
+			   			'type'					=> 'primary',
+			   			'connection_user_id'	=> $facebook_user->id,
+			   			'connection_username'	=> $username,
+			   			'auth_one'				=> $access_token
+			   		);
 
-						$this->social_auth->set_userdata_connections($this->session->userdata('user_id'));
+					$connection = $this->social_auth->add_connection($connection_data);
 
-						$this->session->set_flashdata('message', "Facebook account connected");
+					$this->social_auth->set_userdata_connections($this->session->userdata('user_id'));
 
-					 	redirect('settings/connections', 'refresh');
-					}
-					else
-					{
-						echo '<pre>';
-						print_r($facebook_user);
-					}
+					$this->session->set_flashdata('message', "Facebook account connected");
+
+				 	redirect('settings/connections', 'refresh');
 				}
 			}
 		}	
