@@ -21,9 +21,20 @@ class Connections extends MY_Controller
 	}
 			
 	function index()
-	{
+	{	
 		// Is Logged In
 		if ($this->social_auth->logged_in()) redirect('connections/facebook/add');	
+		
+		// Is Special Rediret Set
+		if ($this->session->flashdata('facebook_connections_redirect'))
+		{
+			$redirect = $this->session->flashdata('facebook_connections_redirect');
+			$this->session->keep_flashdata('facebook_connections_redirect');
+		}
+		else
+		{
+			$redirect = base_url().config_item('facebook_connections_redirect');
+		}
 	
 		$me 				= NULL;
 		$album				= NULL;
@@ -32,7 +43,8 @@ class Connections extends MY_Controller
 		// Go to Facebook
 		if (!isset($_REQUEST['code']))
 		{
-			redirect($this->facebook_oauth->getAuthorizeUrl(config_item('facebook_extended_options')));
+			redirect('http://www.facebook.com/dialog/oauth?client_id='.config_item('facebook_app_id')."&display=popup&method=permissions.request&redirect_uri=".urlencode(base_url().'connections/facebook').'&scope='.config_item('facebook_extended_options'));
+			//redirect($this->facebook_oauth->getAuthorizeUrl(config_item('facebook_extended_options')));
 		}				
 		else
 		{			
@@ -52,7 +64,7 @@ class Connections extends MY_Controller
 				if ($this->social_auth->social_login($check_connection->user_id, 'facebook')) 
 	        	{ 
 		        	$this->session->set_flashdata('message', "Login with Facebook Success");
-		        	redirect(base_url().'home', 'refresh');
+		        	redirect($redirect, 'refresh');
 		        }
 		        else 
 		        { 
@@ -191,7 +203,7 @@ class Connections extends MY_Controller
 				if ($this->social_auth->social_login($user_id, 'facebook'))
 	        	{
         			$this->session->set_flashdata('message', "User created and logged in");
-		        	redirect(base_url().'home', 'refresh');
+		        	redirect($redirect, 'refresh');
 		        }
 		        else 
 		        {
