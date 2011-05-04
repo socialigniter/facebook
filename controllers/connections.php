@@ -23,18 +23,7 @@ class Connections extends MY_Controller
 	function index()
 	{	
 		// Is Logged In
-		if ($this->social_auth->logged_in()) redirect('connections/facebook/add');	
-		
-		// Is Special Rediret Set
-		if ($this->session->flashdata('facebook_connections_redirect'))
-		{
-			$redirect = $this->session->flashdata('facebook_connections_redirect');
-			$this->session->keep_flashdata('facebook_connections_redirect');
-		}
-		else
-		{
-			$redirect = base_url().config_item('facebook_connections_redirect');
-		}
+		if ($this->social_auth->logged_in()) redirect('connections/facebook/add');
 	
 		$me 				= NULL;
 		$album				= NULL;
@@ -64,7 +53,7 @@ class Connections extends MY_Controller
 				if ($this->social_auth->social_login($check_connection->user_id, 'facebook')) 
 	        	{ 
 		        	$this->session->set_flashdata('message', "Login with Facebook Success");
-		        	redirect($redirect, 'refresh');
+		        	redirect(login_redirect(), 'refresh');
 		        }
 		        else 
 		        { 
@@ -133,22 +122,19 @@ class Connections extends MY_Controller
 					if (property_exists($facebook_user, 'username')) $username = $facebook_user->username;
 					else $username = url_username($facebook_user->name, 'none', true);
 
+					// Convert Time
 					if (property_exists($facebook_user, 'timezone'))
 					{					
-						// Convert Time					
 						foreach(timezones() as $key => $zone)
 						{
 							if ($facebook_user->timezone === $zone) $time_zone = $key;						
-						}	
-						
-			        	$utc_offset	= $facebook_user->timezone * 60 * 60;		        	
+						}						
 					}
 					else
 					{
 						$time_zone	= '';
-						$utc_offset = '';
 					}
-		
+
 					// Create User
 			    	$additional_data = array(
 						'name' 		 	=> $facebook_user->name,
@@ -195,7 +181,7 @@ class Connections extends MY_Controller
 		       		else
 		       		{
 		        		$this->session->set_flashdata('message', "Error creating user & logging in");
-		        		redirect("login", 'refresh');
+		        		redirect('login', 'refresh');
 		       		}
 		       	}	
 		       		
@@ -203,12 +189,12 @@ class Connections extends MY_Controller
 				if ($this->social_auth->social_login($user_id, 'facebook'))
 	        	{
         			$this->session->set_flashdata('message', "User created and logged in");
-		        	redirect($redirect, 'refresh');
+		        	redirect(login_redirect(), 'refresh');
 		        }
 		        else 
 		        {
 		        	$this->session->set_flashdata('message', "Login with Facebook in-correct");
-		        	redirect("login", 'refresh');
+		        	redirect('login', 'refresh');
 		        }		       		
 			}
 		}				
