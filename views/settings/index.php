@@ -26,13 +26,21 @@
 
 	<h3>Setup</h3>
 
-	<p>Sign In
+	<p>Login
 	<?= form_dropdown('social_login', config_item('yes_or_no'), $settings['facebook']['social_login']) ?>
 	</p>
+	
+	<p>Login Redirect<br>
+	<?= base_url() ?> <input type="text" size="30" name="login_redirect" value="<?= $settings['facebook']['login_redirect'] ?>" />
+	</p>	
 
 	<p>Connections
 	<?= form_dropdown('social_connection', config_item('yes_or_no'), $settings['facebook']['social_connection']) ?>
 	</p>
+
+	<p>Connections Redirect<br>
+	<?= base_url() ?> <input type="text" size="30" name="connections_redirect" value="<?= $settings['facebook']['connections_redirect'] ?>" />
+	</p>	
 
 	<p>Post
 	<?= form_dropdown('social_post', config_item('yes_or_no'), $settings['facebook']['social_post']) ?>	

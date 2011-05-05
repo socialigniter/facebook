@@ -22,4 +22,6 @@ $config['facebook_settings']['social_connection'] 	= 'FALSE';
 $config['facebook_settings']['social_post'] 		= 'TRUE';
 $config['facebook_settings']['auto_publish'] 		= 'FALSE';
 $config['facebook_settings']['archive'] 			= 'TRUE';
+$config['facebook_settings']['login_redirect']		= '';
+$config['facebook_settings']['connections_redirect']= '';
 $config['facebook_settings']['extended_options'] 	= 'offline_access, user_about_me, user_activities, user_events, user_interests, user_likes, user_location, user_website, email, read_stream, read_mailbox, user_checkins, publish_stream, publish_checkins';

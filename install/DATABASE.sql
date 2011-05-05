@@ -7,6 +7,7 @@ INSERT INTO `settings` VALUES(NULL, 1, 'facebook', 'social_connection', 'FALSE')
 INSERT INTO `settings` VALUES(NULL, 1, 'facebook', 'social_post', 'TRUE');
 INSERT INTO `settings` VALUES(NULL, 1, 'facebook', 'auto_publish', 'FALSE');
 INSERT INTO `settings` VALUES(NULL, 1, 'facebook', 'archive', 'TRUE');
+INSERT INTO `settings` VALUES(NULL, 1, 'facebook', 'login_redirect', '');
 INSERT INTO `settings` VALUES(NULL, 1, 'facebook', 'connections_redirect', '');
 INSERT INTO `settings` VALUES(NULL, 1, 'facebook', 'extended_options', 'offline_access, user_about_me, user_activities, user_events, user_interests, user_likes, user_location, user_website, email, read_stream, read_mailbox, user_checkins, publish_stream, publish_checkins');
 

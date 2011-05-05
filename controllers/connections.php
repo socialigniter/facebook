@@ -52,13 +52,13 @@ class Connections extends MY_Controller
 				// Login
 				if ($this->social_auth->social_login($check_connection->user_id, 'facebook')) 
 	        	{ 
-		        	$this->session->set_flashdata('message', "Login with Facebook Success");
-		        	redirect(login_redirect(), 'refresh');
+		        	$this->session->set_flashdata('message', 'Login with Facebook Success');
+		        	redirect(login_redirect(config_item('facebook_login_redirect')), 'refresh');
 		        }
 		        else 
 		        { 
-		        	$this->session->set_flashdata('message', "Login with Facebook Did Not Work");
-		        	redirect("login", 'refresh');
+		        	$this->session->set_flashdata('message', 'Login with Facebook Did Not Work');
+		        	redirect('login', 'refresh');
 		        }
 			}
 			else
@@ -180,7 +180,7 @@ class Connections extends MY_Controller
 		       		}
 		       		else
 		       		{
-		        		$this->session->set_flashdata('message', "Error creating user & logging in");
+		        		$this->session->set_flashdata('message', 'Error creating user & logging in');
 		        		redirect('login', 'refresh');
 		       		}
 		       	}	
@@ -188,12 +188,12 @@ class Connections extends MY_Controller
 				// Login
 				if ($this->social_auth->social_login($user_id, 'facebook'))
 	        	{
-        			$this->session->set_flashdata('message', "User created and logged in");
-		        	redirect(login_redirect(), 'refresh');
+        			$this->session->set_flashdata('message', 'User created and logged in');
+		        	redirect(login_redirect(config_item('facebook_login_redirect')), 'refresh');
 		        }
 		        else 
 		        {
-		        	$this->session->set_flashdata('message', "Login with Facebook in-correct");
+		        	$this->session->set_flashdata('message', 'Login with Facebook in-correct');
 		        	redirect('login', 'refresh');
 		        }		       		
 			}
@@ -226,7 +226,7 @@ class Connections extends MY_Controller
 				$facebook_user		= $this->facebook_oauth->get('/me');
 
 				// Error Redirect
-				if (!isset($facebook_user->id)) redirect('settings/connections', 'refresh');
+				if (!isset($facebook_user->id)) redirect(connections_redirect(config_item('facebook_connections_redirect')), 'refresh');
 				
 				// Check
 				$check_connection	= $this->social_auth->check_connection_user_id($facebook_user->id, "facebook");
@@ -234,12 +234,11 @@ class Connections extends MY_Controller
 				// Added
 				if ($check_connection)
 				{
-				 	$this->session->set_flashdata('message', "This Facebook account is already connected to another user");
-				 	redirect('settings/connections', 'refresh');
+				 	$this->session->set_flashdata('message', 'This Facebook account is already connected to another user');
+				 	redirect(connections_redirect(config_item('facebook_connections_redirect')), 'refresh');
 				}
 				else
 				{
-
 					// Username
 					if (property_exists($facebook_user, 'username')) $username = $facebook_user->username;
 					else $username = $facebbook_user->id;					
@@ -259,9 +258,9 @@ class Connections extends MY_Controller
 
 					$this->social_auth->set_userdata_connections($this->session->userdata('user_id'));
 
-					$this->session->set_flashdata('message', "Facebook account connected");
+					$this->session->set_flashdata('message', 'Facebook account connected');
 
-				 	redirect('settings/connections', 'refresh');
+				 	redirect(connections_redirect(config_item('facebook_connections_redirect')), 'refresh');
 				}
 			}
 		}	
