@@ -75,9 +75,7 @@ class Connections extends MY_Controller
 					
 					// Username
 					if (property_exists($facebook_user, 'username')) $username = $facebook_user->username;
-					else $username = $facebbook_user->id;	
-
-
+					else $username = $facebook_user->id;	
 				
 					// Add Connection
 			   		$connection_data = array(
