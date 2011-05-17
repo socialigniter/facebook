@@ -21,7 +21,7 @@ class Connections extends MY_Controller
 	}
 			
 	function index()
-	{	
+	{		
 		// Is Logged In
 		if ($this->social_auth->logged_in()) redirect('connections/facebook/add');
 	
@@ -201,16 +201,16 @@ class Connections extends MY_Controller
 	}
 	
 	function add()
-	{		
+	{			
 		if (!$this->social_auth->logged_in()) redirect('connections/facebook');	
 		
 		$check_connection = $this->social_auth->check_connection_user($this->session->userdata('user_id'), 'facebook', 'primary');
 		
 		// Is this account connected			
 		if ($check_connection)
-		{							
+		{		
 			$this->session->set_flashdata('message', "You already have a Facebook account connected");
-			redirect('settings/connections', 'refresh');
+			redirect(connections_redirect(config_item('facebook_connections_redirect')), 'refresh');
 		}
 		else
 		{
