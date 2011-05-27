@@ -13,6 +13,8 @@
 * Description: 	Install values for Facebook App for Social Igniter 
 */
 /* Settings */
+$config['facebook_settings']['widgets'] 			= 'TRUE';
+$config['facebook_settings']['categories'] 			= 'FALSE';
 $config['facebook_settings']['enabled']				= 'TRUE';
 $config['facebook_settings']['app_id'] 				= '';
 $config['facebook_settings']['api_key'] 			= '';

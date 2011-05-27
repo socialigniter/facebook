@@ -1,3 +1,5 @@
+INSERT INTO `settings` VALUES(NULL, 1, 'facebook', 'widgets', 'TRUE');
+INSERT INTO `settings` VALUES(NULL, 1, 'facebook', 'categories', 'TRUE');
 INSERT INTO `settings` VALUES(NULL, 1, 'facebook', 'enabled', 'TRUE');
 INSERT INTO `settings` VALUES(NULL, 1, 'facebook', 'app_id', '');
 INSERT INTO `settings` VALUES(NULL, 1, 'facebook', 'api_key', '');
