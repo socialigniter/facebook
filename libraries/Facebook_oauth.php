@@ -108,6 +108,37 @@ class Facebook_oauth
 		
 		return $this->access_token;
 	}
+	
+	public function getProfilePictureUrl($facebook_user_id)
+  	{
+  		$result = FALSE;
+  		
+  		// Makes sure server supports cURL request
+		if ((ini_get('open_basedir') == '') && (ini_get('safe_mode') == 'Off' || !ini_get('safe_mode')))
+		{
+			$url 	 = 'http://graph.facebook.com/'.$facebook_user_id.'/picture?type=large';
+			$options = array(
+				CURLOPT_RETURNTRANSFER => 1,
+				CURLOPT_FOLLOWLOCATION => 1
+			);
+		
+			$ch = curl_init($url);
+			curl_setopt_array($ch, $options);
+			$output 	= curl_exec($ch);
+			$download	= curl_getinfo($ch);
+	
+			if (preg_match('/static-ak/i', $download['url']))
+  			{
+				$result = FALSE;
+  			}
+  			else
+  			{
+  			  	$result = $download['url'];
+  			}
+  		}
+  	
+  		return $result;
+  	}
   
 	/* GET wrapper for http. */
 	public function get($location, $fields=NULL, $introspection=FALSE)

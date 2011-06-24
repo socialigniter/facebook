@@ -33,7 +33,6 @@ class Connections extends MY_Controller
 		if (!isset($_REQUEST['code']))
 		{
 			redirect('http://www.facebook.com/dialog/oauth?client_id='.config_item('facebook_app_id')."&display=popup&method=permissions.request&redirect_uri=".urlencode(base_url().'connections/facebook').'&scope='.config_item('facebook_extended_options'));
-			//redirect($this->facebook_oauth->getAuthorizeUrl(config_item('facebook_extended_options')));
 		}				
 		else
 		{			
@@ -62,12 +61,12 @@ class Connections extends MY_Controller
 		        }
 			}
 			else
-			{	
+			{
 				// Email
 				if (property_exists($facebook_user, 'email')) $email = $facebook_user->email;
 				else $email = $facebook_user->username.'@facebook.com';
-				
-				// Check
+
+				// Check Exisitng
 				if ($user_check = $this->social_auth->get_user('email', $email))
 				{
 					// Set
@@ -76,7 +75,7 @@ class Connections extends MY_Controller
 					// Username
 					if (property_exists($facebook_user, 'username')) $username = $facebook_user->username;
 					else $username = $facebook_user->id;	
-				
+									
 					// Add Connection
 			   		$connection_data = array(
 			   			'site_id'				=> $this->module_site->site_id,
@@ -91,36 +90,14 @@ class Connections extends MY_Controller
 					$connection = $this->social_auth->add_connection($connection_data);
 				}
 				else
-				{
-					// Get Image
-					/*
-					$image_normal	= $this->facebook_oauth->get('/me', 'picture');
-					$image_large	= str_replace('_n.', '_q.jpg', $image_normal->picture);
-					
-		    		// Process Image	        	
-					if ($image_large)
-		    		{
-		        		$this->load->model('image_model');
-		
-		        		// Snatch Twitter Image
-		        		$image_save		= $facebook_user->username.'.'.pathinfo($image_large, PATHINFO_EXTENSION);
-						$this->image_model->get_external_image($image_large, config_item('uploads_folder').$image_save);
-		
-						// Process New Images
-						$image_size 	= getimagesize(config_item('uploads_folder').$image_save);
-						$file_data		= array('file_name'	=> $image_save, 'image_width' => $image_size[0], 'image_height' => $image_size[1]);
-						$image_sizes	= array('full', 'large', 'medium', 'small');
-						$create_path	= config_item('users_images_folder').$user_id.'/';
-		
-						$this->image_model->make_images($file_data, 'users', $image_sizes, $create_path, TRUE);
-		
-						unlink(config_item('uploads_folder').$image_save);
-					}	
-					*/
-					
+				{	
 					// Username
 					if (property_exists($facebook_user, 'username')) $username = $facebook_user->username;
 					else $username = url_username($facebook_user->name, 'none', true);
+					
+					// Picture
+					if ($profile_picture = $this->facebook_oauth->getProfilePictureUrl($facebook_user->id)) $picture = $username.'.jpg';
+					else $picture = '';
 
 					// Convert Time
 					if (property_exists($facebook_user, 'timezone'))
@@ -138,7 +115,7 @@ class Connections extends MY_Controller
 					// Create User
 			    	$additional_data = array(
 						'name' 		 	=> $facebook_user->name,
-						'image'		 	=> '',
+						'image'		 	=> $picture,
 						'language'		=> config_item('languages_default'),
 						'time_zone'		=> $time_zone,
 						'geo_enabled'	=> 0,
@@ -177,12 +154,31 @@ class Connections extends MY_Controller
 				   		);
 				   							
 						$connection = $this->social_auth->add_connection($connection_data);
+						
+			    		// Process Image	        	
+						if ($profile_picture)
+			    		{
+			        		$this->load->model('image_model');
+			
+			        		// Snatch Facebook Image
+							$this->image_model->get_external_image($profile_picture, config_item('uploads_folder').$picture);
+			
+							// Process Image
+							$image_size 	= getimagesize(config_item('uploads_folder').$picture);
+							$file_data		= array('file_name'	=> $picture, 'image_width' => $image_size[0], 'image_height' => $image_size[1]);
+							$image_sizes	= array('full', 'large', 'medium', 'small');
+							$create_path	= config_item('users_images_folder').$user_id.'/';
+			
+							$this->image_model->make_images($file_data, 'users', $image_sizes, $create_path, TRUE);
+			
+							unlink(config_item('uploads_folder').$picture);
+						}						
 		       		}
 		       		else
 		       		{
 		        		$this->session->set_flashdata('message', 'Error creating user & logging in');
 		        		redirect('login', 'refresh');
-		       		}
+		       		}		       	
 		       	}	
 		       		
 				// Login
@@ -195,7 +191,7 @@ class Connections extends MY_Controller
 		        {
 		        	$this->session->set_flashdata('message', 'Login with Facebook in-correct');
 		        	redirect('login', 'refresh');
-		        }		       		
+		        }
 			}
 		}				
 	}
