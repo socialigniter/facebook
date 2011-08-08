@@ -3,8 +3,9 @@
 <div class="content_wrap_inner">
 
 	<div class="content_inner_top_right">
-		<h3>Module</h3>
+		<h3>App</h3>
 		<p><?= form_dropdown('enabled', config_item('enable_disable'), $settings['facebook']['enabled']) ?></p>
+		<p><a href="<?= base_url() ?>api/<?= $this_module ?>/uninstall" id="app_uninstall" class="button_delete">Uninstall</a></p>
 	</div>
 	
 	<h3>Application Keys</h3>
@@ -56,7 +57,7 @@
 
 	<p><a href="#">Connect</a> a Facebook account for this site to generate automatic updates.</p>
 
-	<input type="hidden" name="module" value="facebook">
+	<input type="hidden" name="module" value="<?= $this_module ?>">
 
 	<p><input type="submit" name="save" value="Save" /></p>
 

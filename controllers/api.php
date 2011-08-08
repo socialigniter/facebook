@@ -36,8 +36,5 @@ class Api extends Oauth_Controller
 	
 	    $this->response($message, 200);
 	}
-		
-
-
 
 }

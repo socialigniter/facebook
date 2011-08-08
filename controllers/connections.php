@@ -159,20 +159,22 @@ class Connections extends MY_Controller
 						if ($profile_picture)
 			    		{
 			        		$this->load->model('image_model');
-			
-			        		// Snatch Facebook Image
-							$this->image_model->get_external_image($profile_picture, config_item('uploads_folder').$picture);
-			
-							// Process Image
-							$image_size 	= getimagesize(config_item('uploads_folder').$picture);
-							$file_data		= array('file_name'	=> $picture, 'image_width' => $image_size[0], 'image_height' => $image_size[1]);
-							$image_sizes	= array('full', 'large', 'medium', 'small');
+
+							// Delete / Make Folder
 							$create_path	= config_item('users_images_folder').$user_id.'/';
-			
-							$this->image_model->make_images($file_data, 'users', $image_sizes, $create_path, TRUE);
-			
-							unlink(config_item('uploads_folder').$picture);
-						}						
+							delete_files($create_path);
+							make_folder($create_path);
+
+			        		// Get Facebook Image
+							$this->image_model->get_external_image($profile_picture, $create_path.$picture);
+
+							// Image Data
+							$image_size 	= getimagesize($create_path.$picture);
+							$file_data		= array('file_name' => $picture, 'image_width' => $image_size[0], 'image_height' => $image_size[1], 'file_size' => filesize($create_path.$picture));
+
+							// Make Sizes
+							$this->image_model->make_images($create_path, $file_data, 'users', array('full', 'large', 'medium', 'small'));
+						}
 		       		}
 		       		else
 		       		{
