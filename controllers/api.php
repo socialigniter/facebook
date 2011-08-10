@@ -5,6 +5,60 @@
  */
 class Api extends Oauth_Controller
 {
+	protected $module_site;
+
+    function __construct()
+    {
+        parent::__construct(); 
+		
+		// Get Site Facebook
+		$this->module_site = $this->social_igniter->get_site_view_row('module', 'facebook');		
+	}
+	
+	function install_authd_get()
+	{
+		// Load
+		$this->load->library('installer');
+		$this->load->config('install');        
+
+		// Settings & Create Folders
+		$settings = $this->installer->install_settings('facebook', config_item('facebook_settings'));
+	
+		// Site
+		$site = $this->installer->install_sites(config_item('facebook_sites'));
+	
+		if ($settings == TRUE AND $site == TRUE)
+		{
+            $message = array('status' => 'success', 'message' => 'Yay, the Facebook App was installed');
+        }
+        else
+        {
+            $message = array('status' => 'error', 'message' => 'Dang Facebook App could not be uninstalled');
+        }		
+		
+		$this->response($message, 200);
+	}
+
+	function reinstall_authd_get()
+	{
+		// Load
+		$this->load->library('installer');
+		$this->load->config('install');        
+
+		// Settings & Create Folders
+		$settings = $this->installer->install_settings('facebook', config_item('facebook_settings'), TRUE);
+
+		if ($settings == TRUE)
+		{
+            $message = array('status' => 'success', 'message' => 'Yay, the Facebook App was reinstalled');
+        }
+        else
+        {
+            $message = array('status' => 'error', 'message' => 'Dang Facebook App could not be uninstalled');
+        }		
+		
+		$this->response($message, 200);
+	}
 
 	function social_post_authd_post()
 	{

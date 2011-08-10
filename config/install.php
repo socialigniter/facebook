@@ -27,3 +27,12 @@ $config['facebook_settings']['archive'] 			= 'TRUE';
 $config['facebook_settings']['login_redirect']		= '';
 $config['facebook_settings']['connections_redirect']= '';
 $config['facebook_settings']['extended_options'] 	= 'offline_access, user_about_me, user_activities, user_events, user_interests, user_likes, user_location, user_website, email, read_stream, read_mailbox, user_checkins, publish_stream, publish_checkins';
+
+/* Sites */
+$config['facebook_sites'][] = array(
+	'url'		=> 'http://facebook.com/', 
+	'module'	=> 'facebook', 
+	'type' 		=> 'remote', 
+	'title'		=> 'Facebook', 
+	'favicon'	=> 'http://static.ak.fbcdn.net/rsrc.php/yi/r/q9U99v3_saj.ico'
+);
