@@ -168,12 +168,8 @@ class Connections extends MY_Controller
 			        		// Get Facebook Image
 							$this->image_model->get_external_image($profile_picture, $create_path.$picture);
 
-							// Image Data
-							$image_size 	= getimagesize($create_path.$picture);
-							$file_data		= array('file_name' => $picture, 'image_width' => $image_size[0], 'image_height' => $image_size[1], 'file_size' => filesize($create_path.$picture));
-
 							// Make Sizes
-							$this->image_model->make_images($create_path, $file_data, 'users', array('full', 'large', 'medium', 'small'));
+							$this->image_model->make_thumbnail($create_path, $picture, 'users', 'small');
 						}
 		       		}
 		       		else
