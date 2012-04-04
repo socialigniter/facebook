@@ -31,9 +31,10 @@ class Home extends Dashboard_Controller
 	
 		//echo '<pre>';
 		//print_r($timeline);
+		//die();
 	
 		// Build Feed				 			
-		if (!empty($timeline))
+		if (isset($timeline->data))
 		{
 			foreach ($timeline->data as $item)
 			{
@@ -43,7 +44,7 @@ class Home extends Dashboard_Controller
 				
 				// Contributor
 				$this->data['item_user_id']			= $item->from->id;
-				$this->data['item_avatar']			= $this->social_igniter->profile_image(0, '', '');
+				$this->data['item_avatar']			= 'http://graph.facebook.com/'.$item->from->id.'/picture';
 				$this->data['item_contributor']		= $item->from->name;
 				$this->data['item_profile']			= 'http://facebook.com/profile.php?id='.$item->from->id;
 				
@@ -75,7 +76,7 @@ class Home extends Dashboard_Controller
  		}
 		
 	 	$this->data['social_post'] 		= $this->social_igniter->get_social_post($this->session->userdata('user_id'), 'social_post_horizontal'); 		
-		$this->data['status_updater']	= $this->load->view(config_item('dashboard_theme').'/partials/status_updater', $this->data, true);
+		$this->data['status_updater']	= '';//$this->load->view(config_item('dashboard_theme').'/partials/status_updater', $this->data, true);
 		$this->data['timeline_view'] 	= $timeline_view;
 		$this->data['sub_title'] 		= 'News Feed';
 				
