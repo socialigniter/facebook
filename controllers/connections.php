@@ -30,14 +30,14 @@ class Connections extends MY_Controller
 		$profile_picture	= NULL;
 
 		// Go to Facebook
-		if (!isset($_REQUEST['code']))
+		if (!isset($_GET['code']))
 		{
 			redirect('http://www.facebook.com/dialog/oauth?client_id='.config_item('facebook_app_id')."&display=popup&method=permissions.request&redirect_uri=".urlencode(base_url().'connections/facebook').'&scope='.config_item('facebook_extended_options'));
 		}				
 		else
 		{			
 			// Get the goods
-			$access_token		= $this->facebook_oauth->getAccessToken($_REQUEST['code']);
+			$access_token		= $this->facebook_oauth->getAccessToken($_GET['code']);
 			$facebook_user		= $this->facebook_oauth->get('/me');
 	
 			// Error Redirect
@@ -209,19 +209,23 @@ class Connections extends MY_Controller
 		else
 		{
 			// Not Set go to Facebook
-			if (!isset($_REQUEST['code']))
-			{
+			if (!isset($_GET['code']))
+			{	
 				redirect($this->facebook_oauth->getAuthorizeUrl(config_item('facebook_extended_options')));
 			}	
 			else
-			{
+			{			
 				// Get the goods
-				$access_token		= $this->facebook_oauth->getAccessToken($_REQUEST['code']);					
+				$access_token		= $this->facebook_oauth->getAccessToken($_GET['code']);					
 				$facebook_user		= $this->facebook_oauth->get('/me');
 
 				// Error Redirect
-				if (!isset($facebook_user->id)) redirect(connections_redirect(config_item('facebook_connections_redirect')), 'refresh');
-				
+				if (!isset($facebook_user->id))
+				{
+				 	$this->session->set_flashdata('message', 'Oops, could not get account data for that Facebook account');
+					redirect(connections_redirect(config_item('facebook_connections_redirect')), 'refresh');
+				}
+
 				// Check
 				$check_connection	= $this->social_auth->check_connection_user_id($facebook_user->id, "facebook");
 				
