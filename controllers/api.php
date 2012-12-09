@@ -101,7 +101,6 @@ class Api extends Oauth_Controller
 			{
 				$message = array('status' => 'error', 'message' => 'Could not post message to Facebook', 'data' => $wall_post);			
 			}
-	
 		}
 		else
 		{
