@@ -80,8 +80,28 @@ class Api extends Oauth_Controller
 			);
 			
 			$wall_post = $this->facebook_oauth->post($connection->connection_user_id.'/feed', $wall_post);
+			
+			if ($wall_post)
+			{
+				// Add to Meta
+				$post_result = explode('_', $wall_post->id);
+				
+				$content_meta = array(
+					'site_id'		=> $this->module_site->site_id,
+					'content_id'	=> $this->input->post('content_id'),
+					'meta'			=> 'facebook_wall_post_id',
+					'value'			=> $post_result[1]
+				);
+
+				$this->social_igniter->add_meta($content_meta);
+
+				$message = array('status' => 'success', 'message' => 'Posted to Facebook successfully', 'data' => $wall_post);
+			}
+			else
+			{
+				$message = array('status' => 'error', 'message' => 'Could not post message to Facebook', 'data' => $wall_post);			
+			}
 	
-			$message = array('status' => 'success', 'message' => 'Posted to Facebook successfully', 'data' => $wall_post);
 		}
 		else
 		{
