@@ -1,0 +1,12 @@
+{
+	"app":"facebook",
+	"name":"Facebook",
+	"created":"2012-12-15",
+	"updated":"2012-12-15",
+	"creator":"Brennan Novak",
+	"category":"social",
+	"links":{
+		"default":"home/facebook/timeline"
+	},
+	"launcher":"yes"
+}
