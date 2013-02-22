@@ -84,20 +84,21 @@ class Api extends Oauth_Controller
 				$post_url = base_url().$this->input->post('module').'/view/'.$this->input->post('content_id');				
 			}
 
-
 			// Wall Post Data
 			$wall_post = array(
-				'message'	=> truncator($this->input->post('content'), 140, $post_url, 20),
-				'link'		=> $this->input->post('long_url')
+				'message'	=> truncator($this->input->post('content'), 140),
+				'link'		=> 'https://brennannovak.com/notes/165',
+				'name'		=> truncator($this->input->post('content'), 30),
+				'caption'	=> ucwords($this->input->post('module')).' by '.$this->input->post('author')
 			);
-			
+
 			$wall_post = $this->facebook_oauth->post($connection->connection_user_id.'/feed', $wall_post);
-			
-			if ($wall_post)
+
+			if (isset($wall_post->id))
 			{
 				// Add to Meta
 				$post_result = explode('_', $wall_post->id);
-				
+
 				$content_meta = array(
 					'site_id'		=> $this->module_site->site_id,
 					'content_id'	=> $this->input->post('content_id'),
