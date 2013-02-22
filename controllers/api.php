@@ -109,5 +109,42 @@ class Api extends Oauth_Controller
 	
 	    $this->response($message, 200);
 	}
+	
+	function social_comments_get()
+	{
+
+		if ($connection = $this->social_auth->check_connection_user(1, 'facebook', 'primary'))
+		{	
+			// Load Library
+			$facebook_config = array(
+				'client_id' 	=> config_item('facebook_app_id'),
+				'client_secret'	=> config_item('facebook_secret_key'),
+				'callback_url'	=> base_url().'connections/facebook',
+				'access_token'	=> $connection->auth_one
+			);			
+					
+			$this->load->library('facebook_oauth', $facebook_config);	
+		
+		
+			
+					
+			$comments = $this->facebook_oauth->get('10151186868398918');
+		
+			echo '<pre>';
+			print_r($comments);
+			echo '</pre>';
+		
+		}
+		else
+		{
+			echo 'No tokens found';
+			
+		}		
+		
+		
+		
+		
+		
+	}
 
 }
