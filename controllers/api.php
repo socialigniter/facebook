@@ -84,11 +84,18 @@ class Api extends Oauth_Controller
 				$post_url = base_url().$this->input->post('module').'/view/'.$this->input->post('content_id');				
 			}
 
+			// Uses Short URL if exists						
+			if ($this->input->post('short_url')):
+				$post_url = $this->input->post('short_url');
+			else:
+				$post_url = $this->input->post('long_url');				
+			endif;
+
 			// Wall Post Data
 			$wall_post = array(
 				'message'	=> truncator($this->input->post('content'), 140),
-				'link'		=> 'https://brennannovak.com/notes/165',
-				'name'		=> truncator($this->input->post('content'), 30),
+				'link'		=> $post_url,
+				'name'		=> truncator($this->input->post('content'), 45),
 				'caption'	=> ucwords($this->input->post('module')).' by '.$this->input->post('author')
 			);
 
